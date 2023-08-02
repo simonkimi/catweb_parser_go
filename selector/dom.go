@@ -177,10 +177,10 @@ func (c *ParserContext) SuccessFlag(node *Node, selector *models.Selector) *bool
 	return &v
 }
 
-func (c *ParserContext) Env(node *Node, selector []*models.ExtraSelector) []*results.EnvEntity {
-	var envs []*results.EnvEntity
+func (c *ParserContext) Env(node *Node, selector []*models.ExtraSelector) []*results.EnvResult {
+	var envs []*results.EnvResult
 	for _, s := range selector {
-		env := &results.EnvEntity{
+		env := &results.EnvResult{
 			Id:     s.Id,
 			Value:  c.String(node, s.Selector),
 			Global: s.Global,

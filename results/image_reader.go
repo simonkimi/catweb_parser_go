@@ -13,5 +13,5 @@ type ImageReaderResult struct {
 	Comments    []*Comment   `json:"comments"`
 	IsSuccess   *bool        `json:"isSuccess"`
 	FailMessage *string      `json:"failMessage"`
-	Env         []*EnvEntity `json:"env"`
+	Env         []*EnvResult `json:"env"`
 }

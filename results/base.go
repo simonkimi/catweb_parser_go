@@ -1,6 +1,6 @@
 package results
 
-type Comment struct {
+type CommentResult struct {
 	Username *string      `json:"username"`
 	Content  *string      `json:"content"`
 	Time     *string      `json:"time"`
@@ -19,11 +19,11 @@ type ImageResult struct {
 	CacheKey *string  `json:"cacheKey"`
 	Width    *float64 `json:"width"`
 	Height   *float64 `json:"height"`
-	ImgX     *float64 `json:"imgX"`
-	ImgY     *float64 `json:"imgY"`
+	X        *float64 `json:"x"`
+	Y        *float64 `json:"y"`
 }
 
-type EnvEntity struct {
+type EnvResult struct {
 	Id     string  `json:"id"`
 	Global bool    `json:"global"`
 	Value  *string `json:"value"`

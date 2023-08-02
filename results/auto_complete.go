@@ -10,5 +10,5 @@ type AutoCompleteResult struct {
 	Items       []*AutoCompleteResultItem `json:"items"`
 	IsSuccess   *bool                     `json:"isSuccess"`
 	FailMessage *string                   `json:"failMessage"`
-	Env         []*EnvEntity              `json:"env"`
+	Env         []*EnvResult              `json:"env"`
 }

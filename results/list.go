@@ -14,5 +14,5 @@ type ListParserResult struct {
 	NextPage    *string                 `json:"nextPage"`
 	IsSuccess   *bool                   `json:"isSuccess"`
 	FailMessage *string                 `json:"failMessage"`
-	Env         []*EnvEntity            `json:"env"`
+	Env         []*EnvResult            `json:"env"`
 }
