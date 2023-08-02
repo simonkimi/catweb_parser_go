@@ -14,8 +14,10 @@ type ImageReaderParser struct {
 	FailedSelector  *Selector        `json:"failedSelector"`
 	BadgeSelector   *Selector        `json:"badgeSelector"`
 	BadgeItem       *TagSelector     `json:"badgeItem"`
-	Tag             *Selector        `json:"tag"`
+	TagSelector     *Selector        `json:"tag"`
 	TagItem         *TagSelector     `json:"tagItem"`
+	CommentSelector *Selector        `json:"commentSelector"`
+	CommentItem     *CommentSelector `json:"commentItem"`
 }
 
 type DetailParser struct {
