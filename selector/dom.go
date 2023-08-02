@@ -2,10 +2,13 @@ package selector
 
 import (
 	"catweb_parser/models"
+	"catweb_parser/results"
 	"catweb_parser/utils"
 	"encoding/json"
 	"fmt"
+	"github.com/antchfx/htmlquery"
 	"github.com/dop251/goja"
+	"github.com/ohler55/ojg/oj"
 	"golang.org/x/net/html"
 	"regexp"
 	"strconv"
@@ -15,6 +18,7 @@ import (
 const (
 	DomHtml = iota
 	DomJson
+	DomXml
 )
 
 type Node struct {
@@ -23,28 +27,45 @@ type Node struct {
 	htmlNode *html.Node
 }
 
-func (n *Node) SelectNodes(selector *models.Selector) ([]*Node, *models.ParseError) {
-	if n.nodeType == DomJson {
-		nodes, err := queryJsonElements(selector, n.jsonNode)
-		wraps := utils.Select(nodes, func(e any) *Node {
-			return &Node{
-				jsonNode: e,
-				nodeType: DomJson,
-			}
-		})
-		return wraps, err
+type ParserContext struct {
+	errList *[]*models.ParseError
+}
+
+func (c *ParserContext) AddError(err *models.ParseError) {
+	*c.errList = append(*c.errList, err)
+}
+
+func CreateContext(content string) (*ParserContext, *Node, error) {
+	node, err := createNode(content)
+	if err != nil {
+		return nil, nil, err
 	}
-	if n.nodeType == DomHtml {
-		nodes, err := queryHtmlElements(selector, n.htmlNode)
-		wraps := utils.Select(nodes, func(e *html.Node) *Node {
-			return &Node{
-				htmlNode: e,
-				nodeType: DomHtml,
-			}
-		})
-		return wraps, err
+	errList := make([]*models.ParseError, 0)
+	return &ParserContext{
+		errList: &errList,
+	}, node, nil
+}
+
+func createNode(content string) (*Node, error) {
+	if strings.HasPrefix(content, "{") || strings.HasPrefix(content, "[") {
+		node, err := oj.ParseString(content)
+		if err != nil {
+			return nil, err
+		}
+		return &Node{
+			nodeType: DomJson,
+			jsonNode: node,
+		}, nil
 	}
-	return nil, models.NewParseError(models.InternalError, fmt.Sprintf("Unknown node type: %d", n.nodeType))
+
+	root, err := htmlquery.Parse(strings.NewReader(content))
+	if err != nil {
+		return nil, err
+	}
+	return &Node{
+		nodeType: DomHtml,
+		htmlNode: root,
+	}, nil
 }
 
 func (n *Node) queryValue(selector *models.Selector, errList *[]*models.ParseError) *string {
@@ -65,23 +86,6 @@ func (n *Node) queryValue(selector *models.Selector, errList *[]*models.ParseErr
 		return nil
 	}
 	return &value
-}
-
-func (n *Node) String(selector *models.Selector, errList *[]*models.ParseError) *string {
-	value := n.queryValue(selector, errList)
-	if value == nil {
-		return nil
-	}
-	// 正则替换
-	value = regexReplace(selector, value, errList)
-	value = execScript(selector, value, errList)
-	if value != nil {
-		return value
-	}
-	if selector.DefaultValue != "" {
-		return &selector.DefaultValue
-	}
-	return nil
 }
 
 func regexReplace(selector *models.Selector, input *string, errList *[]*models.ParseError) *string {
@@ -161,5 +165,131 @@ func execScript(selector *models.Selector, input *string, errList *[]*models.Par
 		return nil
 	}
 	*errList = append(*errList, models.NewParseError(models.InternalError, fmt.Sprintf("Unknown script type: %s", selector.Script.Type)))
+	return nil
+}
+
+func (c *ParserContext) SuccessFlag(node *Node, selector *models.Selector) *bool {
+	value := c.String(node, selector)
+	if value == nil {
+		return nil
+	}
+	v := true
+	return &v
+}
+
+func (c *ParserContext) Env(node *Node, selector []*models.ExtraSelector) []*results.EnvEntity {
+	var envs []*results.EnvEntity
+	for _, s := range selector {
+		env := &results.EnvEntity{
+			Id:     s.Id,
+			Value:  c.String(node, s.Selector),
+			Global: s.Global,
+		}
+		envs = append(envs, env)
+	}
+	return envs
+}
+
+func (c *ParserContext) String(node *Node, selector *models.Selector) *string {
+	value := node.queryValue(selector, c.errList)
+	if value == nil {
+		return nil
+	}
+	// 正则替换
+	value = regexReplace(selector, value, c.errList)
+	value = execScript(selector, value, c.errList)
+	if value != nil {
+		return value
+	}
+	if selector.DefaultValue != "" {
+		return &selector.DefaultValue
+	}
+	return nil
+}
+
+func (c *ParserContext) Int(node *Node, selector *models.Selector) *int64 {
+	value := c.String(node, selector)
+	if value == nil {
+		return nil
+	}
+	v, err := strconv.ParseInt(*value, 10, 64)
+	if err != nil {
+		c.AddError(models.NewParseError(models.ConverterError, fmt.Sprintf("Selector %s parse %s to int error: %s", selector.Selector, value, err.Error())))
+		return nil
+	}
+	return &v
+}
+
+func (c *ParserContext) Double(node *Node, selector *models.Selector) *float64 {
+	value := c.String(node, selector)
+	if value == nil {
+		return nil
+	}
+	v, err := strconv.ParseFloat(*value, 64)
+	if err != nil {
+		c.AddError(models.NewParseError(models.ConverterError, fmt.Sprintf("Selector %s parse %s to double error: %s", selector.Selector, value, err.Error())))
+		return nil
+	}
+	return &v
+}
+
+func (c *ParserContext) Image(node *Node, selector *models.ImageSelector) *results.ImageResult {
+	return &results.ImageResult{
+		Url:      c.String(node, selector.ImgUrl),
+		CacheKey: c.String(node, selector.CacheKey),
+		Width:    c.Double(node, selector.Width),
+		Height:   c.Double(node, selector.Height),
+		ImgX:     c.Double(node, selector.X),
+		ImgY:     c.Double(node, selector.Y),
+	}
+}
+
+func (c *ParserContext) Tag(node *Node, selector *models.TagSelector) *results.TagResult {
+	return &results.TagResult{
+		Text:     c.String(node, selector.Text),
+		Color:    c.String(node, selector.Color),
+		Category: c.String(node, selector.Category),
+	}
+}
+
+func (c *ParserContext) Comment(node *Node, selector *models.CommentSelector) *results.Comment {
+	return &results.Comment{
+		Username: c.String(node, selector.Username),
+		Content:  c.String(node, selector.Content),
+		Time:     c.String(node, selector.Time),
+		Score:    c.String(node, selector.Score),
+		Avatar:   c.Image(node, selector.Avatar),
+	}
+}
+
+func (c *ParserContext) Nodes(node *Node, selector *models.Selector) []*Node {
+	if node.nodeType == DomJson {
+		nodes, err := queryJsonElements(selector, node.jsonNode)
+		if err != nil {
+			c.AddError(err)
+			return nil
+		}
+		return utils.Map(nodes, func(e any) *Node {
+			return &Node{
+				jsonNode: e,
+				nodeType: DomJson,
+			}
+		})
+	}
+	if node.nodeType == DomHtml {
+		nodes, err := queryHtmlElements(selector, node.htmlNode)
+		if err != nil {
+			c.AddError(err)
+			return nil
+		}
+		return utils.Map(nodes, func(e *html.Node) *Node {
+			return &Node{
+				htmlNode: e,
+				nodeType: DomHtml,
+			}
+		})
+	}
+
+	c.AddError(models.NewParseError(models.InternalError, fmt.Sprintf("Unknown node type: %d", node.nodeType)))
 	return nil
 }

@@ -13,40 +13,40 @@ type ImageReaderParser struct {
 	SuccessSelector *Selector        `json:"successSelector"`
 	FailedSelector  *Selector        `json:"failedSelector"`
 	BadgeSelector   *Selector        `json:"badgeSelector"`
-	BadgeText       string           `json:"badgeText"`
-	BadgeCategory   string           `json:"badgeCategory"`
+	BadgeItem       *TagSelector     `json:"badgeItem"`
+	Tag             *Selector        `json:"tag"`
+	TagItem         *TagSelector     `json:"tagItem"`
 }
 
-type GalleryParser struct {
-	ParserType        string             `json:"parserType"`
-	Extra             []*ExtraSelector   `json:"extra"`
-	Title             *Selector          `json:"title"`
-	Subtitle          *Selector          `json:"subtitle"`
-	UploadTime        *Selector          `json:"uploadTime"`
-	Star              *Selector          `json:"star"`
-	ImgCount          *Selector          `json:"imgCount"`
-	PageCount         *Selector          `json:"pageCount"`
-	Language          *Selector          `json:"language"`
-	CoverImg          *ImageSelector     `json:"coverImg"`
-	Description       *Selector          `json:"description"`
-	SuccessSelector   *Selector          `json:"successSelector"`
-	FailedSelector    *Selector          `json:"failedSelector"`
-	ThumbnailSelector *Selector          `json:"thumbnailSelector"`
-	Thumbnail         *ImageSelector     `json:"thumbnail"`
-	Target            *Selector          `json:"target"`
-	CommentSelector   *Selector          `json:"commentSelector"`
-	Comments          []*CommentSelector `json:"comments"`
-	Tag               *Selector          `json:"tag"`
-	TagColor          *Selector          `json:"tagColor"`
-	BadgeSelector     *Selector          `json:"badgeSelector"`
-	BadgeText         *Selector          `json:"badgeText"`
-	BadgeCategory     *Selector          `json:"badgeCategory"`
-	ChapterSelector   *Selector          `json:"chapterSelector"`
-	ChapterTitle      *Selector          `json:"chapterTitle"`
-	ChapterSubtitle   *Selector          `json:"chapterSubtitle"`
-	ChapterCover      *ImageSelector     `json:"chapterCover"`
-	NextPage          *Selector          `json:"nextPage"`
-	CountPrePage      *Selector          `json:"countPrePage"`
+type DetailParser struct {
+	ParserType      string           `json:"parserType"`
+	Extra           []*ExtraSelector `json:"extra"`
+	Title           *Selector        `json:"title"`
+	Subtitle        *Selector        `json:"subtitle"`
+	UploadTime      *Selector        `json:"uploadTime"`
+	Star            *Selector        `json:"star"`
+	ImageCount      *Selector        `json:"imageCount"`
+	PageCount       *Selector        `json:"pageCount"`
+	Language        *Selector        `json:"language"`
+	CoverImage      *ImageSelector   `json:"coverImage"`
+	Description     *Selector        `json:"description"`
+	SuccessSelector *Selector        `json:"successSelector"`
+	FailedSelector  *Selector        `json:"failedSelector"`
+	PreviewSelector *Selector        `json:"thumbnailSelector"`
+	PreviewImage    *ImageSelector   `json:"thumbnail"`
+	Target          *Selector        `json:"target"`
+	CommentSelector *Selector        `json:"commentSelector"`
+	CommentItem     *CommentSelector `json:"commentItem"`
+	BadgeSelector   *Selector        `json:"badgeSelector"`
+	BadgeItem       *TagSelector     `json:"badgeItem"`
+	TagSelector     *Selector        `json:"tagSelector"`
+	TagItem         *TagSelector     `json:"tagItem"`
+	ChapterSelector *Selector        `json:"chapterSelector"`
+	ChapterTitle    *Selector        `json:"chapterTitle"`
+	ChapterSubtitle *Selector        `json:"chapterSubtitle"`
+	ChapterCover    *ImageSelector   `json:"chapterCover"`
+	NextPage        *Selector        `json:"nextPage"`
+	CountPrePage    *Selector        `json:"countPrePage"`
 }
 
 type ListViewParser struct {
@@ -59,15 +59,14 @@ type ListViewParser struct {
 	Subtitle        *Selector        `json:"subtitle"`
 	UploadTime      *Selector        `json:"uploadTime"`
 	Star            *Selector        `json:"star"`
-	ImgCount        *Selector        `json:"imgCount"`
+	ImageCount      *Selector        `json:"imageCount"`
 	Language        *Selector        `json:"language"`
-	PreviewImg      *ImageSelector   `json:"previewImg"`
+	PreviewImage    *ImageSelector   `json:"previewImage"`
 	Target          *Selector        `json:"target"`
-	Tag             *Selector        `json:"tag"`
-	TagColor        *Selector        `json:"tagColor"`
 	BadgeSelector   *Selector        `json:"badgeSelector"`
-	BadgeText       *Selector        `json:"badgeText"`
-	BadgeColor      *Selector        `json:"badgeColor"`
+	BadgeItem       *TagSelector     `json:"badgeItem"`
+	Tag             *Selector        `json:"tag"`
+	TagItem         *TagSelector     `json:"tagItem"`
 	Paper           *Selector        `json:"paper"`
 	IdCode          *Selector        `json:"idCode"`
 	NextPage        *Selector        `json:"nextPage"`

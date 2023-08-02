@@ -6,6 +6,7 @@ const (
 	InternalError = iota
 	ParserError
 	ElementNotFoundError
+	ConverterError
 )
 
 type ParseError struct {

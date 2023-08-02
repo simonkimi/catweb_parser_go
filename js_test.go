@@ -16,3 +16,13 @@ func TestJs(t *testing.T) {
 	}
 	println(value.String())
 }
+
+func TestM(t *testing.T) {
+	foo := make([]string, 0)
+	testList(&foo)
+	println(len(foo))
+}
+
+func testList(foo *[]string) {
+	*foo = append(*foo, "1")
+}
