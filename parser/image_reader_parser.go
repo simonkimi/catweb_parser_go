@@ -26,7 +26,7 @@ func ImageReaderParser(content string, parser *models.ImageReaderParser) (*resul
 		Tags: utils.Map(c.Nodes(root, parser.TagSelector), func(node *selector.Node) *results.TagResult {
 			return c.Tag(node, parser.TagItem)
 		}),
-		Comments: utils.Map(c.Nodes(root, parser.CommentSelector), func(node *selector.Node) *results.Comment {
+		Comments: utils.Map(c.Nodes(root, parser.CommentSelector), func(node *selector.Node) *results.CommentResult {
 			return c.Comment(node, parser.CommentItem)
 		}),
 		IsSuccess:   c.SuccessFlag(root, parser.SuccessSelector),

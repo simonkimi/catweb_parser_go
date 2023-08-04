@@ -120,16 +120,6 @@ func execScript(selector *models.Selector, input *string, errList *[]*models.Par
 	}
 	value := *input
 	switch selector.Script.Type {
-	case models.ScriptComputed:
-		// 计算属性, 直接调用js进行计算
-		vm := goja.New()
-		result, err := vm.RunString(value)
-		if err != nil {
-			*errList = append(*errList, models.NewParseError(models.ParserError, fmt.Sprintf("Selector %s script error: %s", selector.Selector, err.Error())))
-			return nil
-		}
-		r := result.String()
-		return &r
 	case models.ScriptJs:
 		// 执行javascript
 		vm := goja.New()
@@ -235,12 +225,12 @@ func (c *ParserContext) Double(node *Node, selector *models.Selector) *float64 {
 
 func (c *ParserContext) Image(node *Node, selector *models.ImageSelector) *results.ImageResult {
 	return &results.ImageResult{
-		Url:      c.String(node, selector.ImgUrl),
+		Url:      c.String(node, selector.ImageUrl),
 		CacheKey: c.String(node, selector.CacheKey),
 		Width:    c.Double(node, selector.Width),
 		Height:   c.Double(node, selector.Height),
-		ImgX:     c.Double(node, selector.X),
-		ImgY:     c.Double(node, selector.Y),
+		X:        c.Double(node, selector.X),
+		Y:        c.Double(node, selector.Y),
 	}
 }
 
@@ -252,8 +242,8 @@ func (c *ParserContext) Tag(node *Node, selector *models.TagSelector) *results.T
 	}
 }
 
-func (c *ParserContext) Comment(node *Node, selector *models.CommentSelector) *results.Comment {
-	return &results.Comment{
+func (c *ParserContext) Comment(node *Node, selector *models.CommentSelector) *results.CommentResult {
+	return &results.CommentResult{
 		Username: c.String(node, selector.Username),
 		Content:  c.String(node, selector.Content),
 		Time:     c.String(node, selector.Time),

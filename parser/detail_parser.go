@@ -38,7 +38,7 @@ func DetailParser(content string, parser *models.DetailParser) (*results.DetailP
 		Tags: utils.Map(context.Nodes(root, parser.TagSelector), func(node *selector.Node) *results.TagResult {
 			return context.Tag(node, parser.TagItem)
 		}),
-		Comments: utils.Map(context.Nodes(root, parser.CommentSelector), func(node *selector.Node) *results.Comment {
+		Comments: utils.Map(context.Nodes(root, parser.CommentSelector), func(node *selector.Node) *results.CommentResult {
 			return context.Comment(node, parser.CommentItem)
 		}),
 	}

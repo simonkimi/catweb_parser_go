@@ -1,28 +1,20 @@
 package main
 
 import (
-	"github.com/dop251/goja"
+	"catweb_parser/models"
+	"fmt"
+	"os"
 	"testing"
 )
 
-func TestJs(t *testing.T) {
-	vm := goja.New()
-	_ = vm.Set("$arg", "4|L")
-	value, err := vm.RunString(`
-	let[r,c]=$arg.split('|');parseInt(r)*{'L':5,'N':10}[c];
-	`)
+func TestFfi(t *testing.T) {
+	buffer, err := os.ReadFile("test\\ffi_request.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	ffiRequest, err := ParseFfi(buffer)
 	if err != nil {
 		panic(err)
 	}
-	println(value.String())
-}
-
-func TestM(t *testing.T) {
-	foo := make([]string, 0)
-	testList(&foo)
-	println(len(foo))
-}
-
-func testList(foo *[]string) {
-	*foo = append(*foo, "1")
+	fmt.Printf("%+v\n", ffiRequest.Parser.(*models.ListViewParser).ImageCount.Selector)
 }

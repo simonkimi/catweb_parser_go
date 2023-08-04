@@ -10,11 +10,9 @@ const (
 	SelectorFunctionAttr = "attr"
 	SelectorFunctionRaw  = "raw"
 
-	ScriptOutput   = "output"
-	ScriptJs       = "js"
-	ScriptLua      = "lua"
-	ScriptComputed = "computed"
-	ScriptReplace  = "replace"
+	ScriptOutput  = "output"
+	ScriptJs      = "js"
+	ScriptReplace = "replace"
 )
 
 type ScriptField struct {
@@ -34,7 +32,7 @@ type Selector struct {
 }
 
 type ImageSelector struct {
-	ImgUrl   *Selector `json:"imgUrl"`
+	ImageUrl *Selector `json:"imageUrl"`
 	CacheKey *Selector `json:"cacheKey"`
 	Width    *Selector `json:"width"`
 	Height   *Selector `json:"height"`

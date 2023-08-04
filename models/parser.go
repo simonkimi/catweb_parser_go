@@ -1,5 +1,14 @@
 package models
 
+import "encoding/json"
+
+const (
+	ListParserType         = "ListParser"
+	DetailParserType       = "DetailParser"
+	ImageReaderParserType  = "ImageReaderParser"
+	AutoCompleteParserType = "AutoCompleteParser"
+)
+
 type ImageReaderParser struct {
 	ParserType      string           `json:"parserType"`
 	Extra           []*ExtraSelector `json:"extra"`
@@ -83,4 +92,23 @@ type AutoCompleteParser struct {
 	ItemSubtitle    *Selector        `json:"itemSubtitle"`
 	SuccessSelector *Selector        `json:"successSelector"`
 	FailedSelector  *Selector        `json:"failedSelector"`
+}
+
+func ParserBuilder(parserType string, data []byte) (any, error) {
+	var parser any
+	switch parserType {
+	case ListParserType:
+		parser = &ListViewParser{}
+	case DetailParserType:
+		parser = &DetailParser{}
+	case ImageReaderParserType:
+		parser = &ImageReaderParser{}
+	case AutoCompleteParserType:
+		parser = &AutoCompleteParser{}
+	}
+	err := json.Unmarshal(data, parser)
+	if err != nil {
+		return nil, err
+	}
+	return parser, nil
 }
