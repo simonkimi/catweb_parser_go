@@ -12,7 +12,7 @@ func ImageReaderParser(content string, parser *models.ImageReaderParser) (*resul
 	if err != nil {
 		return nil, err
 	}
-	return &results.ImageReaderResult{
+	result := &results.ImageReaderResult{
 		Image:       c.Image(root, parser.Image),
 		LargerImage: c.Image(root, parser.LargerImage),
 		RawImage:    c.Image(root, parser.RawImage),
@@ -31,6 +31,8 @@ func ImageReaderParser(content string, parser *models.ImageReaderParser) (*resul
 		}),
 		IsSuccess:   c.SuccessFlag(root, parser.SuccessSelector),
 		FailMessage: c.String(root, parser.FailedSelector),
-		Env:         c.Env(root, parser.Extra),
-	}, nil
+		Envs:        c.Env(root, parser.Extra),
+	}
+	result.Errors = *c.ErrorList
+	return result, nil
 }

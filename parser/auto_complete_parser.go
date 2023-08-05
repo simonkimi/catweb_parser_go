@@ -12,7 +12,7 @@ func AutoCompleteParser(content string, parser *models.AutoCompleteParser) (*res
 	if err != nil {
 		return nil, err
 	}
-	return &results.AutoCompleteResult{
+	result := &results.AutoCompleteResult{
 		Items: utils.Map(c.Nodes(root, parser.ItemSelector), func(node *selector.Node) *results.AutoCompleteResultItem {
 			return &results.AutoCompleteResultItem{
 				Title:    c.String(node, parser.ItemTitle),
@@ -22,6 +22,8 @@ func AutoCompleteParser(content string, parser *models.AutoCompleteParser) (*res
 		}),
 		IsSuccess:   c.SuccessFlag(root, parser.SuccessSelector),
 		FailMessage: c.String(root, parser.FailedSelector),
-		Env:         c.Env(root, parser.Extra),
-	}, nil
+		Envs:        c.Env(root, parser.Extra),
+	}
+	result.Errors = *c.ErrorList
+	return result, nil
 }

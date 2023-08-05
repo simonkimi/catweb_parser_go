@@ -8,39 +8,40 @@ import (
 )
 
 func DetailParser(content string, parser *models.DetailParser) (*results.DetailParserResult, error) {
-	context, root, err := selector.CreateContext(content)
+	c, root, err := selector.CreateContext(content)
 	if err != nil {
 		return nil, err
 	}
 	result := &results.DetailParserResult{
-		Title:        context.String(root, parser.Title),
-		Subtitle:     context.String(root, parser.Subtitle),
-		Language:     context.String(root, parser.Language),
-		ImageCount:   context.Int(root, parser.ImageCount),
-		UploadTime:   context.String(root, parser.UploadTime),
-		CountPrePage: context.Int(root, parser.CountPrePage),
-		Description:  context.String(root, parser.Description),
-		Star:         context.Double(root, parser.Star),
-		CoverImage:   context.Image(root, parser.CoverImage),
-		NextPage:     context.String(root, parser.NextPage),
-		IsSuccess:    context.SuccessFlag(root, parser.SuccessSelector),
-		FailMessage:  context.String(root, parser.FailedSelector),
-		Env:          context.Env(root, parser.Extra),
-		Previews: utils.Map(context.Nodes(root, parser.PreviewSelector), func(node *selector.Node) *results.PreviewItem {
+		Title:        c.String(root, parser.Title),
+		Subtitle:     c.String(root, parser.Subtitle),
+		Language:     c.String(root, parser.Language),
+		ImageCount:   c.Int(root, parser.ImageCount),
+		UploadTime:   c.String(root, parser.UploadTime),
+		CountPrePage: c.Int(root, parser.CountPrePage),
+		Description:  c.String(root, parser.Description),
+		Star:         c.Double(root, parser.Star),
+		CoverImage:   c.Image(root, parser.CoverImage),
+		NextPage:     c.String(root, parser.NextPage),
+		IsSuccess:    c.SuccessFlag(root, parser.SuccessSelector),
+		FailMessage:  c.String(root, parser.FailedSelector),
+		Envs:         c.Env(root, parser.Extra),
+		Previews: utils.Map(c.Nodes(root, parser.PreviewSelector), func(node *selector.Node) *results.PreviewItem {
 			return &results.PreviewItem{
-				PreviewImage: context.Image(node, parser.PreviewImage),
-				Target:       context.String(node, parser.Target),
+				PreviewImage: c.Image(node, parser.PreviewImage),
+				Target:       c.String(node, parser.Target),
 			}
 		}),
-		Badges: utils.Map(context.Nodes(root, parser.BadgeSelector), func(node *selector.Node) *results.TagResult {
-			return context.Tag(node, parser.BadgeItem)
+		Badges: utils.Map(c.Nodes(root, parser.BadgeSelector), func(node *selector.Node) *results.TagResult {
+			return c.Tag(node, parser.BadgeItem)
 		}),
-		Tags: utils.Map(context.Nodes(root, parser.TagSelector), func(node *selector.Node) *results.TagResult {
-			return context.Tag(node, parser.TagItem)
+		Tags: utils.Map(c.Nodes(root, parser.TagSelector), func(node *selector.Node) *results.TagResult {
+			return c.Tag(node, parser.TagItem)
 		}),
-		Comments: utils.Map(context.Nodes(root, parser.CommentSelector), func(node *selector.Node) *results.CommentResult {
-			return context.Comment(node, parser.CommentItem)
+		Comments: utils.Map(c.Nodes(root, parser.CommentSelector), func(node *selector.Node) *results.CommentResult {
+			return c.Comment(node, parser.CommentItem)
 		}),
 	}
+	result.Errors = *c.ErrorList
 	return result, nil
 }

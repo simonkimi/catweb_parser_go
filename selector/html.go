@@ -11,12 +11,8 @@ import (
 )
 
 func queryHtmlElements(selector *models.Selector, node *html.Node) ([]*html.Node, *models.ParseError) {
-	if selector.Selector == "" {
+	if selector.Selector == "" || selector.Type == models.SelectorTypeSelf {
 		return []*html.Node{node}, nil
-	}
-	if selector.Type == models.SelectorTypeCss {
-		document := goquery.NewDocumentFromNode(node)
-		return document.Find(selector.Selector).Nodes, nil
 	}
 
 	if selector.Type == models.SelectorTypeXpath {
@@ -27,12 +23,20 @@ func queryHtmlElements(selector *models.Selector, node *html.Node) ([]*html.Node
 		return nodes, nil
 	}
 
+	if selector.Type == models.SelectorTypeCss || selector.Type == models.SelectorTypeDefault {
+		document := goquery.NewDocumentFromNode(node)
+		return document.Find(selector.Selector).Nodes, nil
+	}
+
 	return nil, models.NewParseError(models.InternalError, "Unknown selector type"+selector.Type)
 }
 
 func queryHtmlFunction(selector *models.Selector, node *html.Node) (string, bool, *models.ParseError) {
-	if selector.Selector == "" {
-		if selector.Function == models.SelectorFunctionAuto && selector.Param == "" && selector.Regex == "" && selector.DefaultValue == "" {
+	if selector == nil {
+		return "", false, nil
+	}
+	if selector.Selector == "" && selector.Type != models.SelectorTypeSelf {
+		if selector.Param == "" && selector.Regex == "" && selector.DefaultValue == "" {
 			return "", false, nil
 		}
 	}
@@ -44,7 +48,7 @@ func queryHtmlFunction(selector *models.Selector, node *html.Node) (string, bool
 	for _, element := range elements {
 		switch selector.Function {
 		case models.SelectorFunctionAttr:
-			for _, key := range strings.Split(selector.Param, "") {
+			for _, key := range strings.Split(selector.Param, ",") {
 				value := htmlquery.SelectAttr(element, strings.TrimSpace(key))
 				if value != "" {
 					return value, true, nil
@@ -54,10 +58,10 @@ func queryHtmlFunction(selector *models.Selector, node *html.Node) (string, bool
 				return selector.DefaultValue, true, nil
 			}
 			return "", false, models.NewParseError(models.ElementNotFoundError, fmt.Sprintf("Seletor %s not found any attributes", selector.Selector))
-		case models.SelectorFunctionText, models.SelectorFunctionAuto:
-			return htmlquery.OutputHTML(element, true), true, nil
-		case models.SelectorFunctionRaw:
+		case models.SelectorFunctionText, models.SelectorFunctionDefault:
 			return innerText(element), true, nil
+		case models.SelectorFunctionRaw:
+			return htmlquery.OutputHTML(element, true), true, nil
 		}
 	}
 	if selector.DefaultValue != "" {

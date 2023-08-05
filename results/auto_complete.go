@@ -1,5 +1,7 @@
 package results
 
+import "catweb_parser/models"
+
 type AutoCompleteResultItem struct {
 	Title    *string `json:"title"`
 	Subtitle *string `json:"subtitle"`
@@ -10,5 +12,6 @@ type AutoCompleteResult struct {
 	Items       []*AutoCompleteResultItem `json:"items"`
 	IsSuccess   *bool                     `json:"isSuccess"`
 	FailMessage *string                   `json:"failMessage"`
-	Env         []*EnvResult              `json:"env"`
+	Envs        []*EnvResult              `json:"env"`
+	Errors      []*models.ParseError      `json:"errors"`
 }

@@ -12,11 +12,11 @@ func ListParser(content string, parser *models.ListViewParser) (*results.ListPar
 	if err != nil {
 		return nil, err
 	}
-	return &results.ListParserResult{
+	result := &results.ListParserResult{
 		NextPage:    c.String(root, parser.NextPage),
 		IsSuccess:   c.SuccessFlag(root, parser.SuccessSelector),
 		FailMessage: c.String(root, parser.FailedSelector),
-		Env:         c.Env(root, parser.Extra),
+		Envs:        c.Env(root, parser.Extra),
 		Items: utils.Map(c.Nodes(root, parser.ItemSelector), func(node *selector.Node) *results.ListParserResultItem {
 			return &results.ListParserResultItem{
 				Title:        c.String(node, parser.Title),
@@ -27,5 +27,7 @@ func ListParser(content string, parser *models.ListViewParser) (*results.ListPar
 				PreviewImage: c.Image(node, parser.PreviewImage),
 			}
 		}),
-	}, nil
+	}
+	result.Errors = *c.ErrorList
+	return result, nil
 }
