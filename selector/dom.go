@@ -28,11 +28,11 @@ type Node struct {
 }
 
 type ParserContext struct {
-	errList *[]*models.ParseError
+	ErrorList *[]*models.ParseError
 }
 
 func (c *ParserContext) AddError(err *models.ParseError) {
-	*c.errList = append(*c.errList, err)
+	*c.ErrorList = append(*c.ErrorList, err)
 }
 
 func CreateContext(content string) (*ParserContext, *Node, error) {
@@ -42,7 +42,7 @@ func CreateContext(content string) (*ParserContext, *Node, error) {
 	}
 	errList := make([]*models.ParseError, 0)
 	return &ParserContext{
-		errList: &errList,
+		ErrorList: &errList,
 	}, node, nil
 }
 
@@ -115,7 +115,7 @@ func regexReplace(selector *models.Selector, input *string, errList *[]*models.P
 }
 
 func execScript(selector *models.Selector, input *string, errList *[]*models.ParseError) *string {
-	if selector.Script.Script == "" || selector.Script.Type == models.ScriptOutput || input == nil {
+	if selector.Script == nil || selector.Script.Script == "" || selector.Script.Type == models.ScriptOutput || input == nil {
 		return input
 	}
 	value := *input
@@ -181,13 +181,13 @@ func (c *ParserContext) Env(node *Node, selector []*models.ExtraSelector) []*res
 }
 
 func (c *ParserContext) String(node *Node, selector *models.Selector) *string {
-	value := node.queryValue(selector, c.errList)
+	value := node.queryValue(selector, c.ErrorList)
 	if value == nil {
 		return nil
 	}
 	// 正则替换
-	value = regexReplace(selector, value, c.errList)
-	value = execScript(selector, value, c.errList)
+	value = regexReplace(selector, value, c.ErrorList)
+	value = execScript(selector, value, c.ErrorList)
 	if value != nil {
 		return value
 	}
@@ -225,7 +225,7 @@ func (c *ParserContext) Double(node *Node, selector *models.Selector) *float64 {
 
 func (c *ParserContext) Image(node *Node, selector *models.ImageSelector) *results.ImageResult {
 	return &results.ImageResult{
-		Url:      c.String(node, selector.ImageUrl),
+		Url:      c.String(node, selector.Url),
 		CacheKey: c.String(node, selector.CacheKey),
 		Width:    c.Double(node, selector.Width),
 		Height:   c.Double(node, selector.Height),

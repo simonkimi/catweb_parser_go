@@ -1,14 +1,16 @@
 package models
 
 const (
+	SelectorTypeDefault  = ""
+	SelectorTypeSelf     = "self"
 	SelectorTypeCss      = "css"
 	SelectorTypeXpath    = "xpath"
 	SelectorTypeJsonPath = "jsonpath"
 
-	SelectorFunctionAuto = "auto"
-	SelectorFunctionText = "text"
-	SelectorFunctionAttr = "attr"
-	SelectorFunctionRaw  = "raw"
+	SelectorFunctionDefault = ""
+	SelectorFunctionText    = "text"
+	SelectorFunctionAttr    = "attr"
+	SelectorFunctionRaw     = "raw"
 
 	ScriptOutput  = "output"
 	ScriptJs      = "js"
@@ -31,8 +33,14 @@ type Selector struct {
 	DefaultValue string       `json:"defaultValue"`
 }
 
+func (s *Selector) IsDisable() bool {
+	return s.Selector == "" && s.Type != SelectorTypeSelf &&
+		(s.Function == "" || s.Function == SelectorFunctionText) &&
+		s.Param == "" && s.Regex == "" && (s.Script == nil || s.Script.Script == "")
+}
+
 type ImageSelector struct {
-	ImageUrl *Selector `json:"imageUrl"`
+	Url      *Selector `json:"url"`
 	CacheKey *Selector `json:"cacheKey"`
 	Width    *Selector `json:"width"`
 	Height   *Selector `json:"height"`

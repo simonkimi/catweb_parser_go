@@ -1,5 +1,7 @@
 package results
 
+import "catweb_parser/models"
+
 type ListParserResultItem struct {
 	Title        *string      `json:"title"`
 	Subtitle     *string      `json:"subtitle"`
@@ -19,5 +21,6 @@ type ListParserResult struct {
 	NextPage    *string                 `json:"nextPage"`
 	IsSuccess   *bool                   `json:"isSuccess"`
 	FailMessage *string                 `json:"failMessage"`
-	Env         []*EnvResult            `json:"env"`
+	Envs        []*EnvResult            `json:"envs"`
+	Errors      []*models.ParseError    `json:"errors"`
 }

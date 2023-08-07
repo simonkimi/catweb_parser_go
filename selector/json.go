@@ -17,10 +17,8 @@ func queryJsonElements(selector *models.Selector, node any) ([]any, *models.Pars
 }
 
 func queryJsonFunction(selector *models.Selector, node any) (string, bool, *models.ParseError) {
-	if selector.Selector == "" {
-		if selector.Function == models.SelectorFunctionAuto && selector.Param == "" && selector.Regex == "" && selector.DefaultValue == "" {
-			return "", false, nil
-		}
+	if selector == nil || selector.IsDisable() {
+		return "", false, nil
 	}
 	elements, err := queryJsonElements(selector, node)
 	if err != nil {
