@@ -13,8 +13,8 @@ dependencies:
   plugin_platform_interface: ^2.0.2
 
 dev_dependencies:
-  ffi: ^2.0.1
-  ffigen: ^6.1.2
+  ffi: ^2.0.2
+  ffigen: ^9.0.1
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
@@ -33,3 +33,12 @@ flutter:
       windows:
         ffiPlugin: true
 
+ffigen:
+  name: CatwebParserBindings
+  output: 'lib/catweb_parser_bindings_generated.dart'
+  headers:
+    entry-points:
+      - 'src/ios/catweb_parser.h'
+  comments:
+    style: any
+    length: full

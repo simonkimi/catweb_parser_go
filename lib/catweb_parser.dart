@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
@@ -6,12 +5,9 @@ import 'dart:isolate';
 
 import 'catweb_parser_bindings_generated.dart';
 
-/// A very short-lived native function.
-///
-/// For very short-lived functions, it is fine to call them on the main isolate.
-/// They will block the Dart execution while running the native function, so
-/// only do this for native functions which are guaranteed to be short-lived.
-int sum(int a, int b) => _bindings.sum(a, b);
+String parseHtml(String context, String parserType, String parser) =>
+    _bindings.ParseHtml(context, parserType, parser);
+
 
 /// A longer lived native function, which occupies the thread calling it.
 ///
@@ -51,7 +47,6 @@ final DynamicLibrary _dylib = () {
 
 /// The bindings to the native functions in [_dylib].
 final CatwebParserBindings _bindings = CatwebParserBindings(_dylib);
-
 
 /// A request to compute `sum`.
 ///
