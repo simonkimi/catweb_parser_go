@@ -39,7 +39,7 @@ func (p *ListViewParser) Parse(content string) (*results.ListParserResult, error
 		NextPage:    c.String(root, p.NextPage),
 		IsSuccess:   c.SuccessFlag(root, p.SuccessSelector),
 		FailMessage: c.String(root, p.FailedSelector),
-		Env:         c.Env(root, p.Extra),
+		Envs:        c.Env(root, p.Extra),
 		Items: utils.Map(c.Nodes(root, p.ItemSelector), func(node *selector.Node) *results.ListParserResultItem {
 			return &results.ListParserResultItem{
 				Title:        c.String(node, p.Title),

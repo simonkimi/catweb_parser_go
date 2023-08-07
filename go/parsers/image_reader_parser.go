@@ -51,6 +51,6 @@ func (p *ImageReaderParser) Parse(content string) (*results.ImageReaderResult, e
 		}),
 		IsSuccess:   c.SuccessFlag(root, p.SuccessSelector),
 		FailMessage: c.String(root, p.FailedSelector),
-		Env:         c.Env(root, p.Extra),
+		Envs:        c.Env(root, p.Extra),
 	}, nil
 }

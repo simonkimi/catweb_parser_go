@@ -16,3 +16,7 @@ func ParseHtml(context *C.char, parserType *C.char, parser *C.char) *C.char {
 		return C.CString(string(result))
 	}
 }
+
+func main() {
+
+}

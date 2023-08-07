@@ -56,7 +56,7 @@ func (p *DetailParser) Parse(content string) (*results.DetailParserResult, error
 		NextPage:     context.String(root, p.NextPage),
 		IsSuccess:    context.SuccessFlag(root, p.SuccessSelector),
 		FailMessage:  context.String(root, p.FailedSelector),
-		Env:          context.Env(root, p.Extra),
+		Envs:         context.Env(root, p.Extra),
 		Previews: utils.Map(context.Nodes(root, p.PreviewSelector), func(node *selector.Node) *results.PreviewItem {
 			return &results.PreviewItem{
 				PreviewImage: context.Image(node, p.PreviewImage),

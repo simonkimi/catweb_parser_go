@@ -33,6 +33,6 @@ func (p *AutoCompleteParser) Parse(content string) (*results.AutoCompleteResult,
 		}),
 		IsSuccess:   c.SuccessFlag(root, p.SuccessSelector),
 		FailMessage: c.String(root, p.FailedSelector),
-		Env:         c.Env(root, p.Extra),
+		Envs:        c.Env(root, p.Extra),
 	}, nil
 }
