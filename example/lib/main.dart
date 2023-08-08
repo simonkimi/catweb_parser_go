@@ -21,8 +21,12 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    sumResult = catweb_parser.sum(1, 2);
-    sumAsyncResult = catweb_parser.sumAsync(3, 4);
+    sumResult = 1;
+    sumAsyncResult = Future.value(1);
+    () async {
+      final a = await catweb_parser.parseHtmlAsync("123", "234", "231");
+      print(a);
+    }();
   }
 
   @override
