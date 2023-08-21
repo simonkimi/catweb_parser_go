@@ -18,5 +18,6 @@ require (
 	github.com/goinggo/mapstructure v0.0.0-20140717182941-194205d9b4a9 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/pprof v0.0.0-20230207041349-798e818bf904 // indirect
+	github.com/yuin/gopher-lua v1.1.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
 )

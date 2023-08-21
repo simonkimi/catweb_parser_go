@@ -4,11 +4,11 @@ import (
 	"catweb_parser/models"
 	"catweb_parser/results"
 	"catweb_parser/utils"
-	"encoding/json"
 	"fmt"
 	"github.com/antchfx/htmlquery"
 	"github.com/dop251/goja"
 	"github.com/ohler55/ojg/oj"
+	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/net/html"
 	"regexp"
 	"strconv"
@@ -121,7 +121,6 @@ func execScript(selector *models.Selector, input *string, errList *[]*models.Par
 	value := *input
 	switch selector.Script.Type {
 	case models.ScriptJs:
-		// 执行javascript
 		vm := goja.New()
 		err := vm.Set("$arg", value)
 		if err != nil {
@@ -135,24 +134,20 @@ func execScript(selector *models.Selector, input *string, errList *[]*models.Par
 		}
 		r := result.String()
 		return &r
-	case models.ScriptReplace:
-		// 替换, 传入json映射, 返回替换后的对象
-		script := strings.TrimSpace(selector.Script.Script)
-		if !strings.HasPrefix(script, "{") || !strings.HasSuffix(script, "}") {
-			*errList = append(*errList, models.NewParseError(models.ParserError, fmt.Sprintf("Selector %s script error: %s", selector.Selector, "script must be a json object")))
-			return nil
-		}
-		objs := make(map[string]string)
-		err := json.Unmarshal([]byte(script), &objs)
+	case models.ScriptLua:
+		vm := lua.NewState()
+		defer vm.Close()
+		vm.SetGlobal("_ARG", lua.LString(value))
+		err := vm.DoString(selector.Script.Script)
 		if err != nil {
 			*errList = append(*errList, models.NewParseError(models.ParserError, fmt.Sprintf("Selector %s script error: %s", selector.Selector, err.Error())))
 			return nil
 		}
-		val, exist := objs[*input]
-		if exist {
-			return &val
-		}
-		return nil
+		result := vm.GetGlobal("_RESULT")
+		r := result.String()
+		return &r
+	case models.ScriptOutput:
+		return input
 	}
 	*errList = append(*errList, models.NewParseError(models.InternalError, fmt.Sprintf("Unknown script type: %s", selector.Script.Type)))
 	return nil

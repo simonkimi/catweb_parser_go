@@ -12,9 +12,9 @@ const (
 	SelectorFunctionAttr    = "attr"
 	SelectorFunctionRaw     = "raw"
 
-	ScriptOutput  = "output"
-	ScriptJs      = "js"
-	ScriptReplace = "replace"
+	ScriptOutput = "output"
+	ScriptJs     = "js"
+	ScriptLua    = "replace"
 )
 
 type ScriptField struct {

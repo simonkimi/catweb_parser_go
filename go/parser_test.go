@@ -1,33 +1,17 @@
 package main
 
 import (
-	"catweb_parser/models"
-	"catweb_parser/selector"
-	"os"
+	lua "github.com/yuin/gopher-lua"
 	"testing"
 )
 
 func TestParser(t *testing.T) {
-	s := &models.Selector{
-		Selector: ".ir",
-		Function: "attr",
-		Param:    "style",
-		Regex:    "background-position:-?(\\d+)px -?(\\d+)px",
-		Replace:  "5-$1/16-($2-1)/40",
-		Script: &models.ScriptField{
-			Script: "eval($arg)",
-			Type:   models.ScriptJs,
-		},
-	}
-	html, err := os.ReadFile("./test_data/detail.html")
+	l := lua.NewState()
+	defer l.Close()
+	l.SetGlobal("_ARG", lua.LString("10|L"))
+	err := l.DoString("local r, c = string.match(_ARG, \"(%d+)|([LN])\") _RESULT = tonumber(r) * ({L = 5, N = 10})[c]")
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	c, root, err := selector.CreateContext(string(html))
-	result := c.Double(root, s)
-	if result == nil {
-		t.Fatal(result)
-	}
-	println(*result)
+	println(l.GetGlobal("_RESULT").String())
 }
