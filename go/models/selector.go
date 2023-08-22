@@ -14,7 +14,6 @@ const (
 
 	ScriptOutput = "output"
 	ScriptJs     = "js"
-	ScriptLua    = "replace"
 )
 
 type ScriptField struct {

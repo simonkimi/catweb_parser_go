@@ -8,7 +8,6 @@ import (
 	"github.com/antchfx/htmlquery"
 	"github.com/dop251/goja"
 	"github.com/ohler55/ojg/oj"
-	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/net/html"
 	"regexp"
 	"strconv"
@@ -132,18 +131,6 @@ func execScript(selector *models.Selector, input *string, errList *[]*models.Par
 			*errList = append(*errList, models.NewParseError(models.ParserError, fmt.Sprintf("Selector %s script error: %s", selector.Selector, err.Error())))
 			return nil
 		}
-		r := result.String()
-		return &r
-	case models.ScriptLua:
-		vm := lua.NewState()
-		defer vm.Close()
-		vm.SetGlobal("_ARG", lua.LString(value))
-		err := vm.DoString(selector.Script.Script)
-		if err != nil {
-			*errList = append(*errList, models.NewParseError(models.ParserError, fmt.Sprintf("Selector %s script error: %s", selector.Selector, err.Error())))
-			return nil
-		}
-		result := vm.GetGlobal("_RESULT")
 		r := result.String()
 		return &r
 	case models.ScriptOutput:

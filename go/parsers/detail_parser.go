@@ -39,39 +39,40 @@ type DetailParser struct {
 }
 
 func (p *DetailParser) Parse(content string) (*results.DetailParserResult, error) {
-	context, root, err := selector.CreateContext(content)
+	c, root, err := selector.CreateContext(content)
 	if err != nil {
 		return nil, err
 	}
 	result := &results.DetailParserResult{
-		Title:        context.String(root, p.Title),
-		Subtitle:     context.String(root, p.Subtitle),
-		Language:     context.String(root, p.Language),
-		ImageCount:   context.Int(root, p.ImageCount),
-		UploadTime:   context.String(root, p.UploadTime),
-		CountPrePage: context.Int(root, p.CountPrePage),
-		Description:  context.String(root, p.Description),
-		Star:         context.Double(root, p.Star),
-		CoverImage:   context.Image(root, p.CoverImage),
-		NextPage:     context.String(root, p.NextPage),
-		IsSuccess:    context.SuccessFlag(root, p.SuccessSelector),
-		FailMessage:  context.String(root, p.FailedSelector),
-		Envs:         context.Env(root, p.Extra),
-		Previews: utils.Map(context.Nodes(root, p.PreviewSelector), func(node *selector.Node) *results.PreviewItem {
+		Title:        c.String(root, p.Title),
+		Subtitle:     c.String(root, p.Subtitle),
+		Language:     c.String(root, p.Language),
+		ImageCount:   c.Int(root, p.ImageCount),
+		UploadTime:   c.String(root, p.UploadTime),
+		CountPrePage: c.Int(root, p.CountPrePage),
+		Description:  c.String(root, p.Description),
+		Star:         c.Double(root, p.Star),
+		CoverImage:   c.Image(root, p.CoverImage),
+		NextPage:     c.String(root, p.NextPage),
+		IsSuccess:    c.SuccessFlag(root, p.SuccessSelector),
+		FailMessage:  c.String(root, p.FailedSelector),
+		Envs:         c.Env(root, p.Extra),
+		Previews: utils.Map(c.Nodes(root, p.PreviewSelector), func(node *selector.Node) *results.PreviewItem {
 			return &results.PreviewItem{
-				PreviewImage: context.Image(node, p.PreviewImage),
-				Target:       context.String(node, p.Target),
+				PreviewImage: c.Image(node, p.PreviewImage),
+				Target:       c.String(node, p.Target),
 			}
 		}),
-		Badges: utils.Map(context.Nodes(root, p.BadgeSelector), func(node *selector.Node) *results.TagResult {
-			return context.Tag(node, p.BadgeItem)
+		Badges: utils.Map(c.Nodes(root, p.BadgeSelector), func(node *selector.Node) *results.TagResult {
+			return c.Tag(node, p.BadgeItem)
 		}),
-		Tags: utils.Map(context.Nodes(root, p.TagSelector), func(node *selector.Node) *results.TagResult {
-			return context.Tag(node, p.TagItem)
+		Tags: utils.Map(c.Nodes(root, p.TagSelector), func(node *selector.Node) *results.TagResult {
+			return c.Tag(node, p.TagItem)
 		}),
-		Comments: utils.Map(context.Nodes(root, p.CommentSelector), func(node *selector.Node) *results.CommentResult {
-			return context.Comment(node, p.CommentItem)
+		Comments: utils.Map(c.Nodes(root, p.CommentSelector), func(node *selector.Node) *results.CommentResult {
+			return c.Comment(node, p.CommentItem)
 		}),
+		Errors: *c.ErrorList,
 	}
 	return result, nil
 }

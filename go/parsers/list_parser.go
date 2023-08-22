@@ -48,7 +48,17 @@ func (p *ListViewParser) Parse(content string) (*results.ListParserResult, error
 				Star:         c.Double(node, p.Star),
 				ImageCount:   c.Int(node, p.ImageCount),
 				PreviewImage: c.Image(node, p.PreviewImage),
+				Language:     c.String(node, p.Language),
+				Target:       c.String(node, p.Target),
+				Paper:        c.String(node, p.Paper),
+				Badges: utils.Map(c.Nodes(node, p.BadgeSelector), func(node *selector.Node) *results.TagResult {
+					return c.Tag(node, p.BadgeItem)
+				}),
+				Tags: utils.Map(c.Nodes(node, p.Tag), func(node *selector.Node) *results.TagResult {
+					return c.Tag(node, p.TagItem)
+				}),
 			}
 		}),
+		Errors: *c.ErrorList,
 	}, nil
 }
