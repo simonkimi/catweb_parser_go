@@ -20,7 +20,6 @@ type ListViewParser struct {
 	ImageCount      *models.Selector        `json:"imageCount"`
 	Language        *models.Selector        `json:"language"`
 	PreviewImage    *models.ImageSelector   `json:"previewImage"`
-	Target          *models.Selector        `json:"target"`
 	BadgeSelector   *models.Selector        `json:"badgeSelector"`
 	BadgeItem       *models.TagSelector     `json:"badgeItem"`
 	Tag             *models.Selector        `json:"tag"`
@@ -49,7 +48,7 @@ func (p *ListViewParser) Parse(content string) (*results.ListParserResult, error
 				ImageCount:   c.Int(node, p.ImageCount),
 				PreviewImage: c.Image(node, p.PreviewImage),
 				Language:     c.String(node, p.Language),
-				Target:       c.String(node, p.Target),
+				IdCode:       c.String(node, p.IdCode),
 				Paper:        c.String(node, p.Paper),
 				Badges: utils.Map(c.Nodes(node, p.BadgeSelector), func(node *selector.Node) *results.TagResult {
 					return c.Tag(node, p.BadgeItem)

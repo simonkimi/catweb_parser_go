@@ -11,7 +11,7 @@ import (
 )
 
 func queryHtmlElements(selector *models.Selector, node *html.Node) ([]*html.Node, *models.ParseError) {
-	if selector.Selector == "" || selector.Type == models.SelectorTypeSelf {
+	if strings.TrimSpace(selector.Selector) == "" || selector.Type == models.SelectorTypeSelf {
 		return []*html.Node{node}, nil
 	}
 
@@ -35,7 +35,7 @@ func queryHtmlFunction(selector *models.Selector, node *html.Node) (string, bool
 	if selector == nil {
 		return "", false, nil
 	}
-	if selector.Selector == "" && selector.Type != models.SelectorTypeSelf {
+	if strings.TrimSpace(selector.Selector) == "" && selector.Type != models.SelectorTypeSelf && selector.Function == models.SelectorFunctionDefault {
 		if selector.Param == "" && selector.Regex == "" && selector.DefaultValue == "" {
 			return "", false, nil
 		}
@@ -57,9 +57,9 @@ func queryHtmlFunction(selector *models.Selector, node *html.Node) (string, bool
 			if selector.DefaultValue != "" {
 				return selector.DefaultValue, true, nil
 			}
-			return "", false, models.NewParseError(models.ElementNotFoundError, fmt.Sprintf("Seletor %s not found any attributes", selector.Selector))
+			return "", false, models.NewParseError(models.ElementNotFoundError, fmt.Sprintf("Seletor %s not found any %s attributes. reg: %s, replace: %s", selector.Selector, selector.Param, selector.Regex, selector.Replace))
 		case models.SelectorFunctionText, models.SelectorFunctionDefault:
-			return innerText(element), true, nil
+			return InnerText(element), true, nil
 		case models.SelectorFunctionRaw:
 			return htmlquery.OutputHTML(element, true), true, nil
 		}
@@ -71,7 +71,7 @@ func queryHtmlFunction(selector *models.Selector, node *html.Node) (string, bool
 		fmt.Sprintf("Selector %s not found any elements", selector.Selector))
 }
 
-func innerText(n *html.Node) string {
+func InnerText(n *html.Node) string {
 	var output func(*bytes.Buffer, *html.Node)
 	output = func(buf *bytes.Buffer, n *html.Node) {
 		switch n.Type {

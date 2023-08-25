@@ -12,7 +12,7 @@ type ListParserResultItem struct {
 	Badges       []*TagResult `json:"badges"`
 	Tags         []*TagResult `json:"tags"`
 	Language     *string      `json:"language"`
-	Target       *string      `json:"target"`
+	IdCode       *string      `json:"idCode"`
 	Paper        *string      `json:"paper"`
 }
 

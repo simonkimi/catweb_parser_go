@@ -1,5 +1,7 @@
 package models
 
+import "strings"
+
 const (
 	SelectorTypeDefault  = ""
 	SelectorTypeSelf     = "self"
@@ -32,9 +34,9 @@ type Selector struct {
 	DefaultValue string       `json:"defaultValue"`
 }
 
-func (s *Selector) IsDisable() bool {
-	return s.Selector == "" && s.Type != SelectorTypeSelf &&
-		(s.Function == "" || s.Function == SelectorFunctionText) &&
+func (s *Selector) IsEmpty() bool {
+	return strings.TrimSpace(s.Selector) == "" && s.Type != SelectorTypeSelf &&
+		(s.Function == SelectorFunctionDefault) &&
 		s.Param == "" && s.Regex == "" && (s.Script == nil || s.Script.Script == "")
 }
 

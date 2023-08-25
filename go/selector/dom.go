@@ -23,7 +23,7 @@ const (
 type Node struct {
 	nodeType int
 	jsonNode any
-	htmlNode *html.Node
+	HtmlNode *html.Node
 }
 
 type ParserContext struct {
@@ -63,7 +63,7 @@ func createNode(content string) (*Node, error) {
 	}
 	return &Node{
 		nodeType: DomHtml,
-		htmlNode: root,
+		HtmlNode: root,
 	}, nil
 }
 
@@ -75,7 +75,7 @@ func (n *Node) queryValue(selector *models.Selector, errList *[]*models.ParseErr
 		value, found, err = queryJsonFunction(selector, n.jsonNode)
 	}
 	if n.nodeType == DomHtml {
-		value, found, err = queryHtmlFunction(selector, n.htmlNode)
+		value, found, err = queryHtmlFunction(selector, n.HtmlNode)
 	}
 	if err != nil {
 		*errList = append(*errList, err)
@@ -217,6 +217,13 @@ func (c *ParserContext) Image(node *Node, selector *models.ImageSelector) *resul
 }
 
 func (c *ParserContext) Tag(node *Node, selector *models.TagSelector) *results.TagResult {
+	if selector.Text == nil || selector.Text.IsEmpty() {
+		selector.Text = &models.Selector{
+			Type:     models.SelectorTypeSelf,
+			Function: models.SelectorFunctionText,
+		}
+	}
+
 	return &results.TagResult{
 		Text:     c.String(node, selector.Text),
 		Color:    c.String(node, selector.Color),
@@ -249,14 +256,14 @@ func (c *ParserContext) Nodes(node *Node, selector *models.Selector) []*Node {
 		})
 	}
 	if node.nodeType == DomHtml {
-		nodes, err := queryHtmlElements(selector, node.htmlNode)
+		nodes, err := queryHtmlElements(selector, node.HtmlNode)
 		if err != nil {
 			c.AddError(err)
 			return nil
 		}
 		return utils.Map(nodes, func(e *html.Node) *Node {
 			return &Node{
-				htmlNode: e,
+				HtmlNode: e,
 				nodeType: DomHtml,
 			}
 		})

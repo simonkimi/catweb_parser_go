@@ -34,7 +34,9 @@ final DynamicLibrary _dylib = () {
     try {
       return DynamicLibrary.open('$_libName.dll');
     } catch (_) {
-      return DynamicLibrary.open('../windows/$_libName.dll');
+      // 打印当前目录
+      print(Directory.current);
+      return DynamicLibrary.open('windows/$_libName.dll');
     }
   }
 
