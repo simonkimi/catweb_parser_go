@@ -41,8 +41,5 @@ func From(parserType string, parserData string, content string) (buffer []byte, 
 		}
 		result, err = parser.Parse(content)
 	}
-	if err != nil {
-		return nil, err
-	}
 	return json.Marshal(result)
 }
