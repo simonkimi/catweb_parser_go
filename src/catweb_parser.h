@@ -1,0 +1,1 @@
+extern __declspec(dllexport) char* ParseHtml(char* input);

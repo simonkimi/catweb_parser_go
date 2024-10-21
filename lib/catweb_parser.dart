@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
@@ -87,10 +88,15 @@ Future<SendPort> _helperIsolateSendPort = () async {
     final ReceivePort helperReceivePort = ReceivePort()
       ..listen((dynamic data) {
         if (data is _ParseHtmlRequest) {
-          final context = data.context.toNativeUtf8().cast<Char>();
-          final parserType = data.parserType.toNativeUtf8().cast<Char>();
-          final parser = data.parser.toNativeUtf8().cast<Char>();
-          final result = _bindings.ParseHtml(context, parserType, parser);
+          final model = {
+            "data": data.context,
+            "parserType": data.parserType,
+            "parser": data.parser
+          };
+
+          final params = jsonEncode(model);
+          final p = params.toNativeUtf8().cast<Char>();
+          final result = _bindings.ParseHtml(p);
           final response =
               _ParseHtmlResponse(data.id, result.cast<Utf8>().toDartString());
           sendPort.send(response);
