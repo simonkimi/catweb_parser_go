@@ -8,7 +8,6 @@ import (
 )
 
 type ListViewParser struct {
-	ParserType      string                  `json:"parserType"`
 	Extra           []*models.ExtraSelector `json:"extra"`
 	ItemSelector    *models.Selector        `json:"itemSelector"`
 	SuccessSelector *models.Selector        `json:"successSelector"`

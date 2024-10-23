@@ -1,6 +1,6 @@
 name: catweb_parser
 description: A new Flutter FFI plugin project.
-version: 0.0.8
+version: 0.0.9
 homepage:
 
 environment:

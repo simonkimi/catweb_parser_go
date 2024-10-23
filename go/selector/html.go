@@ -11,11 +11,11 @@ import (
 )
 
 func queryHtmlElements(selector *models.Selector, node *html.Node) ([]*html.Node, *models.ParseError) {
-	if strings.TrimSpace(selector.Selector) == "" || selector.Type == models.SelectorTypeSelf {
+	if strings.TrimSpace(selector.Selector) == "" || selector.Type.RuntimeType == models.SelectorTypeSelf {
 		return []*html.Node{node}, nil
 	}
 
-	if selector.Type == models.SelectorTypeXpath {
+	if selector.Type.RuntimeType == models.SelectorTypeXpath {
 		nodes, err := htmlquery.QueryAll(node, selector.Selector)
 		if err != nil {
 			return []*html.Node{}, models.NewParseError(models.ParserError, err.Error())
@@ -23,19 +23,19 @@ func queryHtmlElements(selector *models.Selector, node *html.Node) ([]*html.Node
 		return nodes, nil
 	}
 
-	if selector.Type == models.SelectorTypeCss || selector.Type == models.SelectorTypeDefault {
+	if selector.Type.RuntimeType == models.SelectorTypeCss {
 		document := goquery.NewDocumentFromNode(node)
 		return document.Find(selector.Selector).Nodes, nil
 	}
 
-	return nil, models.NewParseError(models.InternalError, "Unknown selector type"+selector.Type)
+	return nil, models.NewParseError(models.InternalError, "Unknown selector type"+selector.Type.RuntimeType)
 }
 
 func queryHtmlFunction(selector *models.Selector, node *html.Node) (string, bool, *models.ParseError) {
 	if selector == nil {
 		return "", false, nil
 	}
-	if strings.TrimSpace(selector.Selector) == "" && selector.Type != models.SelectorTypeSelf && selector.Function == models.SelectorFunctionDefault {
+	if strings.TrimSpace(selector.Selector) == "" && selector.Type.RuntimeType != models.SelectorTypeSelf && selector.Function.RuntimeType == models.SelectorFunctionText {
 		if selector.Param == "" && selector.Regex == "" && selector.DefaultValue == "" {
 			return "", false, nil
 		}
@@ -46,7 +46,7 @@ func queryHtmlFunction(selector *models.Selector, node *html.Node) (string, bool
 		return "", false, nil
 	}
 	for _, element := range elements {
-		switch selector.Function {
+		switch selector.Function.RuntimeType {
 		case models.SelectorFunctionAttr:
 			for _, key := range strings.Split(selector.Param, ",") {
 				value := htmlquery.SelectAttr(element, strings.TrimSpace(key))
@@ -58,7 +58,7 @@ func queryHtmlFunction(selector *models.Selector, node *html.Node) (string, bool
 				return selector.DefaultValue, true, nil
 			}
 			return "", false, models.NewParseError(models.ElementNotFoundError, fmt.Sprintf("Seletor %s not found any %s attributes. reg: %s, replace: %s", selector.Selector, selector.Param, selector.Regex, selector.Replace))
-		case models.SelectorFunctionText, models.SelectorFunctionDefault:
+		case models.SelectorFunctionText:
 			return InnerText(element), true, nil
 		case models.SelectorFunctionRaw:
 			return htmlquery.OutputHTML(element, true), true, nil

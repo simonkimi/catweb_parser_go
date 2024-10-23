@@ -114,11 +114,11 @@ func regexReplace(selector *models.Selector, input *string, errList *[]*models.P
 }
 
 func execScript(selector *models.Selector, input *string, errList *[]*models.ParseError) *string {
-	if selector.Script == nil || selector.Script.Script == "" || selector.Script.Type == models.ScriptOutput || input == nil {
+	if selector.Script == nil || selector.Script.RuntimeType == models.ScriptOutput || input == nil {
 		return input
 	}
 	value := *input
-	switch selector.Script.Type {
+	switch selector.Script.RuntimeType {
 	case models.ScriptJs:
 		vm := goja.New()
 		err := vm.Set("$arg", value)
@@ -126,17 +126,28 @@ func execScript(selector *models.Selector, input *string, errList *[]*models.Par
 			*errList = append(*errList, models.NewParseError(models.ParserError, fmt.Sprintf("Selector %s script error: %s", selector.Selector, err.Error())))
 			return nil
 		}
-		result, err := vm.RunString(selector.Script.Script)
+		result, err := vm.RunString(selector.Script.Js)
 		if err != nil {
 			*errList = append(*errList, models.NewParseError(models.ParserError, fmt.Sprintf("Selector %s script error: %s", selector.Selector, err.Error())))
 			return nil
 		}
 		r := result.String()
 		return &r
+	case models.ScriptReplace:
+		if selector.Script.Replace == nil {
+			*errList = append(*errList, models.NewParseError(models.ParserError, fmt.Sprintf("Selector %s script error: replace is nil", selector.Selector)))
+			return nil
+		}
+		newValue, exist := selector.Script.Replace[value]
+		if !exist {
+			*errList = append(*errList, models.NewParseError(models.ElementNotFoundError, fmt.Sprintf("Selector %s script replace not found", selector.Selector)))
+			return nil
+		}
+		return &newValue
 	case models.ScriptOutput:
 		return input
 	}
-	*errList = append(*errList, models.NewParseError(models.InternalError, fmt.Sprintf("Unknown script type: %s", selector.Script.Type)))
+	*errList = append(*errList, models.NewParseError(models.InternalError, fmt.Sprintf("Unknown script type: %s", selector.Script.RuntimeType)))
 	return nil
 }
 
@@ -219,8 +230,12 @@ func (c *ParserContext) Image(node *Node, selector *models.ImageSelector) *resul
 func (c *ParserContext) Tag(node *Node, selector *models.TagSelector) *results.TagResult {
 	if selector.Text == nil || selector.Text.IsEmpty() {
 		selector.Text = &models.Selector{
-			Type:     models.SelectorTypeSelf,
-			Function: models.SelectorFunctionText,
+			Type: &models.SelectorQuery{
+				RuntimeType: models.SelectorTypeSelf,
+			},
+			Function: &models.SelectorFunction{
+				RuntimeType: models.SelectorFunctionText,
+			},
 		}
 	}
 
